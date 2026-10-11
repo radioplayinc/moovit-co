@@ -21,17 +21,18 @@ private in the Supabase Table Editor):
 - Quote-only path → `bookings.status = 'quote'`
 - Mover application → `mover_applications.status = 'pending'`
 
-If you add the `email` columns, run in the Supabase SQL editor:
+If you add the `email` columns, run in the Supabase SQL editor. Note the
+column names must match what the code actually POSTs: bookings uses
+`customer_email`, mover_applications uses `email`.
 
 ```sql
-alter table bookings add column if not exists email text;
+alter table bookings add column if not exists customer_email text;
 alter table mover_applications add column if not exists email text;
 ```
 
 ## Branding slots
 
-- `logo.jpg` — real client logo (the loader marks the swap-in point with
-  a `BRAND:LOGO` comment).
+- `logo.jpg` — real client logo (now live on the loading screen).
 - CSS variables `--brand` / `--brand-ink` — accent color.
 - `<title>` — currently "Moovit — Book movers in minutes".
 

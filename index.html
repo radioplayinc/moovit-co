@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#f3f1e9">
-  <link rel="icon" href="data:,">
+  <link rel="icon" href="logo.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -36,7 +36,10 @@
     .fields{width:min(590px,100%);display:grid;gap:11px}.field{text-align:left;position:relative}.field label{display:block;font:600 10px/1 IBM Plex Mono;text-transform:uppercase;letter-spacing:.11em;margin:0 0 7px 4px;color:var(--muted)}input,select{width:100%;height:54px;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:0 16px;font-size:16px;box-shadow:2px 2px 0 var(--shadow)}input::placeholder{color:var(--muted);opacity:.72}.row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
     .actions{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}.primary,.secondary{min-height:52px;border-radius:999px;padding:0 25px;border:1px solid var(--ink);font-weight:800;letter-spacing:-.015em;display:inline-flex;align-items:center;justify-content:center;gap:12px;transition:transform .18s var(--ease),box-shadow .18s var(--ease)}.primary{background:var(--brand);color:var(--brand-ink);box-shadow:4px 4px 0 var(--shadow)}.primary:hover{box-shadow:7px 7px 0 var(--shadow);transform:translate(-2px,-2px)}.secondary{background:transparent;color:var(--ink)}
     .error{min-height:16px;color:#c4371b;font-size:12px;font-weight:700;margin:0}
-    .loader{padding-top:max(22px,env(safe-area-inset-top))}.loader .sheet{gap:20px}.truckmark{width:min(310px,62vw);height:auto;overflow:visible}.truckmark path,.truckmark circle{fill:none;stroke:var(--ink);stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:560;stroke-dashoffset:560;animation:draw 1.6s .15s var(--ease) forwards}.truckmark .cargo{fill:var(--brand);stroke:var(--brand);animation:draw 1.6s .15s var(--ease) forwards,fillIn .45s 1.35s ease forwards}.truckmark .wheel{stroke-dasharray:100;animation-delay:.65s}.loadline{width:min(270px,62vw);height:4px;background:var(--line);overflow:hidden}.loadline span{display:block;width:35%;height:100%;background:var(--brand);animation:chase 1.2s ease-in-out infinite}.enter{opacity:.35;pointer-events:none;transition:opacity .25s}.enter.ready{opacity:1;pointer-events:auto;box-shadow:4px 4px 0 var(--shadow),0 0 0 5px color-mix(in srgb,var(--brand) 16%,transparent)}
+    .loader{padding-top:max(22px,env(safe-area-inset-top))}.loader .sheet{gap:20px}.brandlogo{width:min(310px,62vw);height:auto;border-radius:18px;box-shadow:4px 4px 0 var(--shadow);animation:logoIn .7s var(--ease) both}.truckmark{width:min(310px,62vw);height:auto;overflow:visible}.truckmark path,.truckmark circle{fill:none;stroke:var(--ink);stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:560;stroke-dashoffset:560;animation:draw 1.6s .15s var(--ease) forwards}.truckmark .cargo{fill:var(--brand);stroke:var(--brand);animation:draw 1.6s .15s var(--ease) forwards,fillIn .45s 1.35s ease forwards}.truckmark .wheel{stroke-dasharray:100;animation-delay:.65s}.loadline{width:min(270px,62vw);height:4px;background:var(--line);overflow:hidden}.loadline span{display:block;width:35%;height:100%;background:var(--brand);animation:chase 1.2s ease-in-out infinite}.enter{opacity:.35;pointer-events:none;transition:opacity .25s}.enter.ready{opacity:1;pointer-events:auto;box-shadow:4px 4px 0 var(--shadow),0 0 0 5px color-mix(in srgb,var(--brand) 16%,transparent)}
+    .emergency{margin:2px 0 0;font-size:12px;color:var(--muted)}
+    .callnow{display:inline-block;margin-left:8px;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-weight:700;text-decoration:none;box-shadow:2px 2px 0 var(--shadow)}
+    .callnow:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--shadow)}
     .split span{display:inline-block;opacity:0;transform:translateY(.6em);animation:wordIn .55s var(--ease) forwards;animation-delay:calc(var(--i)*45ms + 40ms)}
     .estimate{font-size:clamp(60px,13vw,138px);font-weight:800;letter-spacing:-.075em;line-height:.85}.estimate sup{font-size:.28em;vertical-align:top;position:relative;top:.25em;letter-spacing:0}.breakdown{width:min(620px,100%);display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font:500 11px IBM Plex Mono;text-transform:uppercase;color:var(--muted)}
     .summary{width:min(720px,100%);display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:4px 4px 0 var(--shadow);overflow:hidden;text-align:left}.summary div{padding:16px;border-right:1px solid var(--line)}.summary div:last-child{border:0}.summary span{display:block;color:var(--muted);font:500 10px IBM Plex Mono;text-transform:uppercase;margin-bottom:7px}.summary b{font-size:14px}
@@ -44,9 +47,9 @@
     .check{width:90px;height:90px}.check circle,.check path{fill:none;stroke:var(--signal);stroke-width:6;stroke-linecap:round;stroke-dasharray:300;stroke-dashoffset:300;animation:draw .8s .15s var(--ease) forwards}.check path{stroke:var(--ink);stroke-dasharray:90;animation-delay:.7s}.ref{font:600 13px IBM Plex Mono;padding:10px 14px;border:1px dashed var(--muted);border-radius:8px}
     .review-list{width:min(650px,100%);border-top:1px solid var(--line)}.review-line{display:flex;justify-content:space-between;gap:18px;padding:10px 2px;border-bottom:1px solid var(--line);font-size:13px;text-align:left}.review-line span{color:var(--muted)}
     .jobs{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:12px}.job{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:17px;text-align:left;box-shadow:3px 3px 0 var(--shadow)}.job-top{display:flex;justify-content:space-between;gap:12px;align-items:start}.job h3{margin:0;font-size:17px}.job .pay{font-size:22px;font-weight:800;color:var(--brand)}.job p{margin:10px 0;color:var(--muted);font-size:12px}.job button{width:100%;height:42px;border-radius:999px;border:1px solid var(--ink);background:transparent;font-weight:700}.demo-note{font:500 10px IBM Plex Mono;color:var(--muted)}
-    @keyframes screenIn{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:none}}@keyframes draw{to{stroke-dashoffset:0}}@keyframes fillIn{to{fill:var(--brand)}}@keyframes chase{0%{transform:translateX(-110%)}100%{transform:translateX(390%)}}@keyframes pulse{50%{transform:translateY(-2px)}}@keyframes wordIn{to{opacity:1;transform:none}}
+    @keyframes screenIn{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:none}}@keyframes logoIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}@keyframes draw{to{stroke-dashoffset:0}}@keyframes fillIn{to{fill:var(--brand)}}@keyframes chase{0%{transform:translateX(-110%)}100%{transform:translateX(390%)}}@keyframes pulse{50%{transform:translateY(-2px)}}@keyframes wordIn{to{opacity:1;transform:none}}
     @media(max-width:620px){.screen{padding-left:16px;padding-right:16px}.sheet{gap:12px}.choices{gap:8px}.choice{min-height:88px;border-radius:14px;padding:13px;box-shadow:3px 3px 0 var(--shadow)}.choice .icon{width:27px;height:27px;margin-bottom:8px}.choice small{font-size:11px}.choices[data-count="4"]{grid-template-columns:1fr 1fr}.choices[data-count="3"]{grid-template-columns:1fr}.choices[data-count="3"] .choice{min-height:72px;flex-direction:row;align-items:center}.row{gap:8px}.summary{grid-template-columns:1fr}.summary div{border-right:0;border-bottom:1px solid var(--line);padding:10px 13px}.jobs{grid-template-columns:1fr}.job{padding:13px}.job p{margin:7px 0}.payment{padding:13px}.breakdown{font-size:9px}.review-line{padding:8px 2px}.chrome{gap:8px}.back,.restart{width:40px;height:40px}h1{font-size:clamp(36px,12vw,56px)}}
-    @media(max-height:690px){.screen{padding-top:66px;padding-bottom:10px}.sheet{gap:9px}h2{font-size:clamp(29px,5.2vw,48px)}.lede{font-size:13px}.choice{min-height:78px;padding:11px}.choice .icon{display:none}.fields{gap:7px}input,select{height:46px}.field label{margin-bottom:4px}.primary,.secondary{min-height:46px}.payment input{height:42px}.summary div{padding:9px 12px}.check{width:68px;height:68px}.jobs{gap:8px}.job{padding:11px}.loader .truckmark{width:min(230px,48vw)}}
+    @media(max-height:690px){.screen{padding-top:66px;padding-bottom:10px}.sheet{gap:9px}h2{font-size:clamp(29px,5.2vw,48px)}.lede{font-size:13px}.choice{min-height:78px;padding:11px}.choice .icon{display:none}.fields{gap:7px}input,select{height:46px}.field label{margin-bottom:4px}.primary,.secondary{min-height:46px}.payment input{height:42px}.summary div{padding:9px 12px}.check{width:68px;height:68px}.jobs{gap:8px}.job{padding:11px}.loader .truckmark{width:min(230px,48vw)}.loader .brandlogo{width:min(230px,48vw)}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.choice:hover,.primary:hover{transform:none}.truckmark path,.truckmark circle,.check circle,.check path{stroke-dashoffset:0}.enter.ready{animation:none}}
   </style>
 </head>
@@ -54,21 +57,19 @@
 <main class="app" id="app">
   <nav class="chrome" aria-label="Step navigation">
     <button class="back" id="backBtn" type="button" aria-label="Go back"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <img class="chrome-logo" src="logo.jpg" alt="Moovit Moving Company">
     <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
     <button class="restart" id="restartBtn" type="button" aria-label="Start over"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6.1 8a7 7 0 0 1 11.6-1L20 9M4 15l2.3 2a7 7 0 0 0 11.6-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </nav>
 
   <section class="screen active loader" data-screen="loader" aria-labelledby="load-title">
     <div class="sheet">
-      <!-- BRAND:LOGO — replace this neutral motion mark with the client logo later -->
-      <svg class="truckmark" viewBox="0 0 360 170" role="img" aria-label="Animated moving truck">
-        <path class="cargo" d="M28 24h194v102H28z"/><path d="M222 63h63l44 45v18H222zM285 63v45h44M28 126h301"/>
-        <circle class="wheel" cx="92" cy="132" r="25"/><circle class="wheel" cx="278" cy="132" r="25"/>
-      </svg>
+      <img class="brandlogo" src="logo.jpg" alt="Moovit Moving Company logo" width="1284" height="856">
       <p class="step">Preparing your route</p>
       <h1 id="load-title">Moving should feel simple.</h1>
       <div class="loadline" aria-hidden="true"><span></span></div>
       <button class="primary enter" id="enterBtn" type="button">Enter <span aria-hidden="true">→</span></button>
+      <p class="emergency">Emergency? <a class="callnow" href="tel:+12406823120">Call now</a></p>
     </div>
   </section>
 
