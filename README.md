@@ -1,32 +1,47 @@
-# moovit-co — mover booking template
+# Moovit — booking template
 
-No-scroll, step-by-step booking web app for a moving company. One page at a
-time; answers drive the next page.
+No-scroll, one-screen-at-a-time booking web app for a moving company.
+Single self-contained `index.html` (+ `logo.jpg`). No build step, no backend to run.
 
-- **Customers:** move details → instant estimate → lock-in → contact →
-  payment (test mode) → confirmation. Quote-only path saves the lead.
-- **Movers:** application flow → roster welcome with claimable sample jobs.
+## Flows
 
-## Deploy (Cloudflare Pages)
+- **I need stuff moved** — move type → size → ZIPs → date/time → stairs →
+  packing → heavy items → animated estimate → lock-in vs. quote-only →
+  contact (name, email, phone) → test checkout → confirmation.
+- **I move stuff** — contact → vehicle → lifting → gear → coverage ZIP →
+  availability → license → payout preference → review → sample job roster.
 
-1. Cloudflare dashboard → Workers & Pages → Create → Pages → Connect to Git
-2. Select this repo. Framework preset: **None**. Build command: *(empty)*.
-   Output directory: `/`
-3. Deploy. Every push to `main` redeploys automatically.
+## Data
 
-## Data (Supabase)
+Completed bookings and mover applications save to Supabase
+(`bookings` / `mover_applications`, anonymous INSERT-only; reads stay
+private in the Supabase Table Editor):
 
-- Project: `moovit-co`
-- Tables: `bookings`, `mover_applications` (SQL in project history)
-- Row Level Security: anonymous visitors can INSERT only; reads happen in
-  the Supabase dashboard Table Editor.
-- Wiring lives in `CONFIG.supabase` at the top of the inline script in
-  `index.html`. Set `enabled: false` to run fully offline.
-- Payment step is a test-mode stub — wire a real Stripe publishable key +
-  PaymentIntent in `CONFIG.payments` before accepting live payments.
+- Paid/test booking → `bookings.status = 'confirmed'`
+- Quote-only path → `bookings.status = 'quote'`
+- Mover application → `mover_applications.status = 'pending'`
+
+If you add the `email` columns, run in the Supabase SQL editor:
+
+```sql
+alter table bookings add column if not exists email text;
+alter table mover_applications add column if not exists email text;
+```
 
 ## Branding slots
 
-- `--brand` CSS variable (accent color)
-- `<!--BRAND:LOGO-->` comments (header + loader marks)
-- `CONFIG.brand` (name, tagline)
+- `logo.jpg` — real client logo (the loader marks the swap-in point with
+  a `BRAND:LOGO` comment).
+- CSS variables `--brand` / `--brand-ink` — accent color.
+- `<title>` — currently "Moovit — Book movers in minutes".
+
+## Payments
+
+**TEST MODE.** The checkout collects card details into a demo confirmation
+and stores only the last four digits. Going live requires Stripe's
+publishable key plus a server-created PaymentIntent — never put a Stripe
+secret key in the browser.
+
+## Deploy
+
+Push to `main` — Cloudflare Pages auto-deploys.
