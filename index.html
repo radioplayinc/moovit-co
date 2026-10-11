@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#f3f1e9">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#ffffff">
   <link rel="icon" href="logo.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,19 +12,21 @@
   <title>Moovit — Book movers in minutes</title>
   <style>
     :root{
-      color-scheme:light dark;
-      --paper:#f3f1e9;--ink:#171918;--muted:#62645f;--panel:#fffdf7;--line:#d5d2c8;
+      color-scheme:light;
+      --paper:#ffffff;--ink:#171918;--muted:#62645f;--panel:#ffffff;--line:#d5d2c8;
       --brand:#f15b2a;--brand-ink:#fffaf4;--signal:#bddc58;--shadow:#171918;
       --ease:cubic-bezier(.2,.8,.2,1)
     }
-    @media(prefers-color-scheme:dark){:root{--paper:#151716;--ink:#f2f0e8;--muted:#aaa9a3;--panel:#202321;--line:#3a3d39;--brand:#ff7447;--brand-ink:#151716;--signal:#c7e263;--shadow:#050606}}
     *{box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden}body{margin:0;background:var(--paper);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
     button,input,select{font:inherit;color:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--signal);outline-offset:3px}
     .app{height:100%;height:100dvh;overflow:hidden;isolation:isolate;position:relative}
     .app:before,.app:after{content:"";position:absolute;border:1px solid var(--line);border-radius:50%;pointer-events:none;z-index:-1}
     .app:before{width:44vw;height:44vw;min-width:280px;min-height:280px;left:-22vw;bottom:-32vw}.app:after{width:24vw;height:24vw;min-width:180px;min-height:180px;right:-12vw;top:-10vw}
     .chrome{position:absolute;z-index:20;left:clamp(16px,3vw,42px);right:clamp(16px,3vw,42px);top:max(15px,env(safe-area-inset-top));display:none;gap:12px;align-items:center}
-    .app.in-flow .chrome{display:flex}.back,.restart{width:44px;height:44px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;border-radius:50%;box-shadow:2px 2px 0 var(--shadow);transition:transform .2s var(--ease)}.back:hover,.restart:hover{transform:translate(-1px,-1px)}
+    .app.in-flow .chrome{display:flex}
+    .flow-logo{display:none;position:absolute;z-index:20;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);height:34px;width:auto;border-radius:9px;background:#fff;border:1px solid var(--line);box-shadow:2px 2px 0 var(--shadow)}
+    .app.in-flow .flow-logo{display:block}
+    .app.in-flow .screen{padding-bottom:70px}.back,.restart{width:44px;height:44px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;border-radius:50%;box-shadow:2px 2px 0 var(--shadow);transition:transform .2s var(--ease)}.back:hover,.restart:hover{transform:translate(-1px,-1px)}
     .restart{margin-left:auto}.progress-track{height:4px;background:var(--line);flex:1;overflow:hidden;border-radius:4px}.progress-fill{height:100%;width:100%;background:var(--brand);transform:scaleX(0);transform-origin:left;transition:transform .65s var(--ease)}
     .screen{position:absolute;inset:0;padding:max(76px,calc(env(safe-area-inset-top) + 68px)) clamp(18px,6vw,96px) max(20px,env(safe-area-inset-bottom));display:none;place-items:center;opacity:0;transform:translateX(22px)}
     .screen.active{display:grid;opacity:1;transform:none;animation:screenIn .42s var(--ease) both}.screen.exit-left{transform:translateX(-26px);opacity:0}
@@ -57,10 +59,10 @@
 <main class="app" id="app">
   <nav class="chrome" aria-label="Step navigation">
     <button class="back" id="backBtn" type="button" aria-label="Go back"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <img class="chrome-logo" src="logo.jpg" alt="Moovit Moving Company">
     <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
     <button class="restart" id="restartBtn" type="button" aria-label="Start over"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6.1 8a7 7 0 0 1 11.6-1L20 9M4 15l2.3 2a7 7 0 0 0 11.6-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </nav>
+  <img class="flow-logo" src="logo.jpg" alt="Moovit Moving Company">
 
   <section class="screen active loader" data-screen="loader" aria-labelledby="load-title">
     <div class="sheet">
