@@ -79,7 +79,7 @@
   <section class="screen" data-screen="role">
     <div class="sheet wide"><p class="step">Choose your path</p><h2>What brings you here?</h2><p class="lede">A few focused questions. One clear next step.</p>
       <div class="choices" style="--cols:2">
-        <button class="choice" data-next="cust-type" data-value="I need stuff moved"><span class="icon"><svg viewBox="0 0 32 32"><path d="M4 12h17v12H4zM21 16h5l3 4v4h-8zM9 27a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg></span><strong>I need stuff moved</strong><small>Get a quick estimate and reserve your move.</small></button>
+        <button class="choice" data-next="cust-contact" data-value="I need stuff moved"><span class="icon"><svg viewBox="0 0 32 32"><path d="M4 12h17v12H4zM21 16h5l3 4v4h-8zM9 27a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/></svg></span><strong>I need stuff moved</strong><small>Get a quick estimate and reserve your move.</small></button>
         <button class="choice" data-next="pro-name" data-value="I move stuff"><span class="icon"><svg viewBox="0 0 32 32"><path d="M16 4v24M9 9h14M7 28h18M11 14l-5 8h10Zm10 0-5 8h10Z"/></svg></span><strong>I move stuff</strong><small>Join the roster and preview available work.</small></button>
       </div>
     </div>
@@ -105,11 +105,11 @@
 
   <section class="screen" data-screen="cust-heavy"><div class="sheet"><p class="step">Move 08</p><h2>Anything especially heavy?</h2><div class="choices" style="--cols:2"><button class="choice" data-answer="heavy" data-value="No specialty items" data-next="cust-estimate"><strong>No</strong><small>Nothing over roughly 200 lb.</small></button><button class="choice" data-answer="heavy" data-value="Specialty item" data-add="150" data-next="cust-estimate"><strong>Yes</strong><small>Piano, safe, gym equipment or similar.</small></button></div></div></section>
 
-  <section class="screen" data-screen="cust-estimate"><div class="sheet"><p class="step">Your instant estimate</p><div class="estimate"><sup>$</sup><span id="estimateNumber">0</span></div><p class="lede">Estimated move total. Final price is confirmed after a quick route review.</p><div class="breakdown"><span>Labor + vehicle</span><span>Route allowance</span><span id="estimateExtras">No add-ons</span></div><div class="actions"><button class="primary" data-next="cust-lock">Lock in this estimate <span>→</span></button><button class="secondary" data-next="cust-contact" data-answer="lockChoice" data-value="Send quote only">Send it to me first</button></div></div></section>
+  <section class="screen" data-screen="cust-estimate"><div class="sheet"><p class="step">Your instant estimate</p><div class="estimate"><sup>$</sup><span id="estimateNumber">0</span></div><p class="lede">Estimated move total. Final price is confirmed after a quick route review.</p><div class="breakdown"><span>Labor + vehicle</span><span>Route allowance</span><span id="estimateExtras">No add-ons</span></div><div class="actions"><button class="primary" data-next="cust-lock">Lock in this estimate <span>→</span></button><button class="secondary" data-next="cust-payment" data-answer="lockChoice" data-value="Send quote only">Send it to me first</button></div></div></section>
 
-  <section class="screen" data-screen="cust-lock"><div class="sheet"><p class="step">One decision</p><h2>Ready to reserve your crew?</h2><p class="lede">A $75 booking hold would secure the date in a live version. It applies to the final total.</p><div class="choices" style="--cols:2"><button class="choice" data-answer="lockChoice" data-value="Reserve crew" data-next="cust-contact"><strong>Yes, reserve it</strong><small>Continue to contact and test checkout.</small></button><button class="choice" data-answer="lockChoice" data-value="Send quote only" data-next="cust-contact"><strong>Not yet</strong><small>Send the estimate without a hold.</small></button></div></div></section>
+  <section class="screen" data-screen="cust-lock"><div class="sheet"><p class="step">One decision</p><h2>Ready to reserve your crew?</h2><p class="lede">A $75 booking hold would secure the date in a live version. It applies to the final total.</p><div class="choices" style="--cols:2"><button class="choice" data-answer="lockChoice" data-value="Reserve crew" data-next="cust-payment"><strong>Yes, reserve it</strong><small>Continue to test checkout.</small></button><button class="choice" data-answer="lockChoice" data-value="Send quote only" data-next="cust-payment"><strong>Not yet</strong><small>Send the estimate without a hold.</small></button></div></div></section>
 
-  <section class="screen" data-screen="cust-contact"><div class="sheet"><p class="step">Almost there</p><h2>Where should we send the move plan?</h2><div class="fields"><div class="field"><label for="custName">Full name</label><input id="custName" autocomplete="name" placeholder="Your name"></div><div class="row"><div class="field"><label for="custEmail">Email</label><input id="custEmail" type="email" autocomplete="email" placeholder="you@email.com"></div><div class="field"><label for="custPhone">Mobile</label><input id="custPhone" type="tel" autocomplete="tel" placeholder="(555) 000-0000"></div></div></div><p class="error" id="contactError"></p><button class="primary" data-input="custName,custEmail,custPhone" data-answer="custName,custEmail,custPhone" data-next="cust-payment">Review booking <span>→</span></button></div></section>
+  <section class="screen" data-screen="cust-contact"><div class="sheet"><p class="step">First things first</p><h2>Where should we send the move plan?</h2><p class="lede">We ask now so we can follow up if you get interrupted.</p><div class="fields"><div class="field"><label for="custName">Full name</label><input id="custName" autocomplete="name" placeholder="Your name"></div><div class="row"><div class="field"><label for="custEmail">Email</label><input id="custEmail" type="email" autocomplete="email" placeholder="you@email.com"></div><div class="field"><label for="custPhone">Mobile</label><input id="custPhone" type="tel" autocomplete="tel" placeholder="(555) 000-0000"></div></div></div><p class="error" id="contactError"></p><button class="primary" data-input="custName,custEmail,custPhone" data-answer="custName,custEmail,custPhone" data-next="cust-type">Continue <span>→</span></button></div></section>
 
   <section class="screen" data-screen="cust-payment"><div class="sheet"><p class="step">Test checkout</p><h2>Reserve the crew.</h2><div class="summary"><div><span>Route</span><b id="sumRoute">—</b></div><div><span>Date</span><b id="sumDate">—</b></div><div><span>Estimate</span><b id="sumPrice">—</b></div></div><div class="payment"><div class="payment-head"><b>Payment details</b><span class="test-chip">TEST MODE · NO CHARGE</span></div><div class="fields"><div class="field"><label for="cardName">Name on card</label><input id="cardName" autocomplete="cc-name" placeholder="Test customer"></div><div class="field"><label for="cardNumber">Card number</label><input id="cardNumber" inputmode="numeric" autocomplete="cc-number" placeholder="4242 4242 4242 4242"></div><div class="row"><div class="field"><label for="expiry">Expiry</label><input id="expiry" autocomplete="cc-exp" placeholder="12/29"></div><div class="field"><label for="cvc">CVC</label><input id="cvc" inputmode="numeric" autocomplete="cc-csc" placeholder="123"></div></div></div></div><p class="error" id="paymentError"></p><button class="primary" id="previewBooking" type="button">Preview booked screen <span>→</span></button><p class="tiny">Production requires Stripe PaymentIntent wiring and a secure server endpoint.</p></div></section>
 
@@ -163,7 +163,7 @@ window.MOOVIT_DB=(function(){
   var current='loader';
   var history=[];
   var state={extras:0,base:0};
-  var customerFlow=['role','cust-type','cust-size','cust-from','cust-to','cust-date','cust-access','cust-pack','cust-heavy','cust-estimate','cust-lock','cust-contact','cust-payment','cust-confirm'];
+  var customerFlow=['role','cust-contact','cust-type','cust-size','cust-from','cust-to','cust-date','cust-access','cust-pack','cust-heavy','cust-estimate','cust-lock','cust-payment','cust-confirm'];
   var proFlow=['role','pro-name','pro-vehicle','pro-lift','pro-gear','pro-area','pro-avail','pro-license','pro-payout','pro-review','pro-welcome'];
   var progress=document.getElementById('progressFill');
 
@@ -207,17 +207,34 @@ window.MOOVIT_DB=(function(){
     function tick(now){var p=Math.min(1,(now-start)/850);var eased=1-Math.pow(1-p,3);el.textContent=Math.round(target*eased).toLocaleString();if(p<1)requestAnimationFrame(tick)}requestAnimationFrame(tick)
   }
   function validate(ids){
-    var missing=false;ids.forEach(function(id){var el=document.getElementById(id);if(!el||!el.value.trim()){missing=true;if(el)el.setAttribute('aria-invalid','true')}else el.removeAttribute('aria-invalid')});return !missing
+    var missing=false;ids.forEach(function(id){var el=document.getElementById(id);var v=el?(el.value||'').trim():'';var ok=!!v;if(ok&&id==='custEmail')ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);if(!ok){missing=true;if(el)el.setAttribute('aria-invalid','true')}else if(el)el.removeAttribute('aria-invalid')});return !missing
   }
   function errorFor(screen,msg){var el=screen.querySelector('.error');if(el)el.textContent=msg||''}
   function capture(answer,value){if(answer)state[answer]=value}
+  function saveLead(){
+    if(!state.contactGiven||state.bookingSaved||state.leadSaved)return;
+    state.leadSaved=true;
+    window.MOOVIT_DB.saveBooking({
+      move_type:state.moveType||null,move_size:state.moveSize||null,
+      from_zip:state.fromZip||null,to_zip:state.toZip||null,
+      move_date:state.moveDate||null,time_window:state.timeWindow||null,
+      stairs:state.stairs||null,packing:state.packing||null,heavy_items:state.heavy||null,
+      estimate_cents:state.base?estimate()*100:null,
+      status:'lead',
+      customer_name:state.custName||null,customer_email:state.custEmail||null,
+      customer_phone:state.custPhone||null,card_last4:null,
+      answers:state
+    });
+  }
+  window.addEventListener('pagehide',saveLead);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveLead()});
 
   app.addEventListener('click',function(e){
     var btn=e.target.closest('button');if(!btn)return;
     if(btn.id==='backBtn'||btn.id==='restartBtn'||btn.id==='enterBtn'||btn.id==='previewBooking'||btn.id==='downloadSummary'||btn.classList.contains('demoClaim'))return;
     var next=btn.dataset.next;if(!next)return;
     var screen=btn.closest('.screen');var inputSpec=btn.dataset.input;
-    if(inputSpec){var ids=inputSpec.split(',');if(!validate(ids)){errorFor(screen,'Please complete the highlighted field'+(ids.length>1?'s':'')+'.');return}errorFor(screen,'');var answers=(btn.dataset.answer||'').split(',');ids.forEach(function(id,i){var el=document.getElementById(id);capture(answers[i]||id,el.value.trim())})}
+    if(inputSpec){var ids=inputSpec.split(',');if(!validate(ids)){errorFor(screen,'Please check the highlighted field'+(ids.length>1?'s':'')+'.');return}errorFor(screen,'');var answers=(btn.dataset.answer||'').split(',');ids.forEach(function(id,i){var el=document.getElementById(id);capture(answers[i]||id,el.value.trim())});if(ids.indexOf('custName')!==-1)state.contactGiven=true}
     if(btn.dataset.answer && !inputSpec)capture(btn.dataset.answer,btn.dataset.value||btn.textContent.trim());
     if(btn.dataset.price)state.base=Number(btn.dataset.price);
     if(btn.dataset.add){state.extras=Number(state.extras||0)+Number(btn.dataset.add)}
@@ -247,6 +264,7 @@ window.MOOVIT_DB=(function(){
       card_last4:(document.getElementById('cardNumber').value||'').replace(/\D/g,'').slice(-4)||null,
       answers:state
     });
+    state.bookingSaved=true;
     go('cust-confirm',true)
   });
   [].slice.call(document.querySelectorAll('.demoClaim')).forEach(function(btn){btn.addEventListener('click',function(){
