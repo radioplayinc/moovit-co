@@ -117,7 +117,7 @@
 
   <section class="screen" data-screen="cust-heavy"><div class="sheet"><p class="step">Move 08</p><h2>Anything especially heavy?</h2><div class="choices" style="--cols:2"><button class="choice" data-answer="heavy" data-value="No specialty items" data-next="cust-estimate"><strong>No</strong><small>Nothing over roughly 200 lb.</small></button><button class="choice" data-answer="heavy" data-value="Specialty item" data-add="150" data-next="cust-estimate"><strong>Yes</strong><small>Piano, safe, gym equipment or similar.</small></button></div></div></section>
 
-  <section class="screen" data-screen="cust-estimate"><div class="sheet"><p class="step">Your instant estimate</p><div class="estimate"><sup>$</sup><span id="estimateNumber">0</span></div><p class="lede">Estimated move total. Final price is confirmed after a quick route review.</p><div class="breakdown"><span>Labor + vehicle</span><span>Route allowance</span><span id="estimateExtras">No add-ons</span></div><div class="actions"><button class="primary" data-next="cust-lock">Lock in this estimate <span>→</span></button><button class="secondary" data-next="cust-payment" data-answer="lockChoice" data-value="Send quote only">Send it to me first</button></div></div></section>
+  <section class="screen" data-screen="cust-estimate"><div class="sheet"><p class="step">Your instant estimate</p><div class="estimate"><sup>$</sup><span id="estimateNumber">0</span></div><p class="lede">Estimated move total. Final price is confirmed after a quick route review.</p><div class="breakdown"><span>Labor + vehicle</span><span>Route allowance</span><span id="estimateExtras">No add-ons</span></div><p class="tiny" id="milesLine"></p><div class="actions"><button class="primary" data-next="cust-lock">Lock in this estimate <span>→</span></button><button class="secondary" data-next="cust-payment" data-answer="lockChoice" data-value="Send quote only">Send it to me first</button></div></div></section>
 
   <section class="screen" data-screen="cust-lock"><div class="sheet"><p class="step">One decision</p><h2>Ready to reserve your crew?</h2><p class="lede">Reserve your date now — we'll send the invoice by email or text, and you pay whenever you're ready.</p><div class="choices" style="--cols:2"><button class="choice" data-answer="lockChoice" data-value="Reserve crew" data-next="cust-payment"><strong>Yes, reserve it</strong><small>Continue.</small></button><button class="choice" data-answer="lockChoice" data-value="Send quote only" data-next="cust-payment"><strong>Not yet</strong><small>Send the estimate without a hold.</small></button></div></div></section>
 
@@ -238,7 +238,7 @@ window.MOOVIT_DB=(function(){
     window.setTimeout(function(){var target=next.querySelector('button,input,select');if(target && id!=='role')target.focus({preventScroll:true})},440)
   }
   function updateDynamic(id){
-    if(id==='cust-estimate')animateEstimate();
+    if(id==='cust-estimate'){animateEstimate();computeMiles();}
     if(id==='cust-payment'){
       text('sumRoute',(state.fromZip||'—')+' → '+(state.toZip||'—'));
       text('sumDate',formatDate(state.moveDate)+' · '+(state.timeWindow||''));
@@ -252,6 +252,22 @@ window.MOOVIT_DB=(function(){
   function text(id,value){var el=document.getElementById(id);if(el)el.textContent=value}
   function formatDate(v){if(!v)return 'Date TBD';var d=new Date(v+'T12:00:00');return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}
   function estimate(){return Number(state.base||380)+Number(state.extras||0)+85}
+  function computeMiles(){
+    var fz=(state.fromZip||'').trim(),tz=(state.toZip||'').trim(),key=fz+'>'+tz;
+    if(!fz||!tz||state.milesKey===key)return;
+    state.milesKey=key;state.miles=null;text('milesLine','');
+    (async function(){
+      try{
+        var z1=await(await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(fz))).json();
+        var z2=await(await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(tz))).json();
+        var p1=z1.places[0],p2=z2.places[0];
+        var r=await(await fetch('https://router.project-osrm.org/route/v1/driving/'+p1.longitude+','+p1.latitude+';'+p2.longitude+','+p2.latitude+'?overview=false')).json();
+        if(state.milesKey!==key||!r||r.code!=='Ok'||!r.routes||!r.routes[0])return;
+        state.miles=Math.round(r.routes[0].distance/1609.344);
+        text('milesLine','≈ '+state.miles.toLocaleString()+' miles driving');
+      }catch(e){}
+    })();
+  }
   function animateEstimate(){
     var el=document.getElementById('estimateNumber'),target=estimate(),start=performance.now();
     var extraNames=[];if(state.stairs&&state.stairs!=='No stairs')extraNames.push('stairs');if(state.packing==='Yes, packing help')extraNames.push('packing');if(state.heavy==='Specialty item')extraNames.push('specialty');text('estimateExtras',extraNames.length?extraNames.join(' + '):'No add-ons');
@@ -324,7 +340,7 @@ window.MOOVIT_DB=(function(){
             fromZip:state.fromZip||'',toZip:state.toZip||'',
             date:formatDate(state.moveDate),time:state.timeWindow||'',
             stairs:state.stairs||'',packing:state.packing||'',heavy:state.heavy||'',
-            estimate:estimate()})
+            estimate:estimate(),miles:(state.miles!=null?state.miles:null)})
         }).catch(function(){});
       }catch(e){}
     }
@@ -334,8 +350,64 @@ window.MOOVIT_DB=(function(){
     [].slice.call(document.querySelectorAll('.demoClaim')).forEach(function(b){b.textContent='Preview claim';b.disabled=false});btn.textContent='Sample claimed ✓';btn.disabled=true;text('claimNote','Demo state only — no live job was claimed.');
   })});
   document.getElementById('downloadSummary').addEventListener('click',function(){
-    var lines=['MOVE PLAN · DEMO SUMMARY','', 'Customer: '+(state.custName||'—'),'Route: '+(state.fromZip||'—')+' to '+(state.toZip||'—'),'Date: '+formatDate(state.moveDate)+' · '+(state.timeWindow||'—'),'Move: '+(state.moveSize||'—')+' · '+(state.moveType||'—'),'Access: '+(state.stairs||'—'),'Packing: '+(state.packing||'—'),'Heavy items: '+(state.heavy||'—'),'Estimate: $'+estimate(),'','Invoice will be sent by email or text message.'];
-    var blob=new Blob([lines.join('\n')],{type:'text/plain'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='demo-move-summary.txt';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)
+    var btn=this,orig=btn.textContent;btn.disabled=true;btn.textContent='Preparing…';
+    function finish(){btn.disabled=false;btn.textContent=orig}
+    function loadImg(src){return new Promise(function(res,rej){var i=new Image();i.onload=function(){res(i)};i.onerror=rej;i.src=src})}
+    (async function(){
+      try{await document.fonts.ready;}catch(e){}
+      var W=1200,H=1840,cv=document.createElement('canvas');cv.width=W;cv.height=H;
+      var x=cv.getContext('2d');
+      var ink='#04254B',signal='#FC5F0F',muted='#5b6b7f';
+      x.fillStyle='#ffffff';x.fillRect(0,0,W,H);
+      x.textAlign='center';x.textBaseline='alphabetic';
+      try{
+        var logo=await loadImg('logo.jpg'),lw=620,lh=Math.round(lw*logo.height/logo.width);
+        x.drawImage(logo,(W-lw)/2,90,lw,lh);
+      }catch(e){}
+      x.fillStyle=signal;
+      var rw=140,rh=10;x.beginPath();x.roundRect((W-rw)/2,545,rw,rh,rh/2);x.fill();
+      x.fillStyle=muted;x.font='400 26px "IBM Plex Mono", monospace';
+      x.fillText('M O V E   S U M M A R Y',W/2,625);
+      var ref=state.bookingRef||'MV-0000';
+      x.strokeStyle='#9aa5b1';x.lineWidth=3;x.setLineDash([12,9]);
+      x.beginPath();x.roundRect((W-320)/2,665,320,86,18);x.stroke();x.setLineDash([]);
+      x.fillStyle=ink;x.font='700 42px "IBM Plex Mono", monospace';
+      x.fillText(ref,W/2,722);
+      function fit(v,max){v=String(v==null||v===''?'—':v);if(x.measureText(v).width<=max)return v;while(v.length>1&&x.measureText(v+'…').width>max)v=v.slice(0,-1);return v+'…'}
+      function row(label,value,y){
+        x.fillStyle=muted;x.font='400 22px "IBM Plex Mono", monospace';
+        x.fillText(label.toUpperCase(),W/2,y);
+        x.fillStyle=ink;x.font='700 38px Manrope, sans-serif';
+        x.fillText(fit(value,1000),W/2,y+46);
+      }
+      var details=[state.stairs,state.packing,state.heavy].filter(Boolean).join(' · ');
+      row('Customer',state.custName,830);
+      row('Contact',[state.custPhone,state.custEmail].filter(Boolean).join(' · '),930);
+      row('Route',(state.fromZip||'—')+' → '+(state.toZip||'—'),1030);
+      row('Distance',state.miles!=null?('≈ '+state.miles.toLocaleString()+' miles'):'—',1130);
+      row('Date',formatDate(state.moveDate)+' · '+(state.timeWindow||'—'),1230);
+      row('Move',(state.moveSize||'—')+' · '+(state.moveType||'—'),1330);
+      row('Details',details,1430);
+      x.fillStyle='#f6f4ee';
+      x.beginPath();x.roundRect(80,1520,1040,170,26);x.fill();
+      x.fillStyle=muted;x.font='400 22px "IBM Plex Mono", monospace';
+      x.fillText('ESTIMATED TOTAL',W/2,1580);
+      x.fillStyle=ink;x.font='800 76px Manrope, sans-serif';
+      x.fillText('$'+estimate().toLocaleString(),W/2,1660);
+      x.fillStyle=muted;x.font='400 24px Manrope, sans-serif';
+      x.fillText('Invoice will be sent by email or text message.',W/2,1755);
+      x.font='400 22px "IBM Plex Mono", monospace';
+      x.fillText('moovit-co.pages.dev',W/2,1795);
+      cv.toBlob(function(blob){
+        if(blob){
+          var url=URL.createObjectURL(blob),a=document.createElement('a');
+          a.href=url;a.download='moovit-move-summary-'+ref+'.png';
+          document.body.appendChild(a);a.click();a.remove();
+          setTimeout(function(){URL.revokeObjectURL(url)},4000);
+        }
+        finish();
+      },'image/png');
+    })();
   });
   if(window.matchMedia('(pointer:fine)').matches && !window.matchMedia('(prefers-reduced-motion:reduce)').matches){
     [].slice.call(document.querySelectorAll('.choice')).forEach(function(card){card.addEventListener('pointermove',function(e){var r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;card.style.transform='perspective(700px) rotateX('+(-y*4)+'deg) rotateY('+(x*5)+'deg) translate(-2px,-2px)'});card.addEventListener('pointerleave',function(){card.style.transform=''})});

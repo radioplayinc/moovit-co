@@ -220,6 +220,7 @@ export async function onRequestPost(context) {
             date: b.date || '', time: b.time || '',
             stairs: b.stairs || '', packing: b.packing || '', heavy: b.heavy || '',
             estimate: b.estimate != null ? b.estimate : null,
+            miles: b.miles != null ? b.miles : null,
           },
         }),
       });

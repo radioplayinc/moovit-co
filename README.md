@@ -43,6 +43,15 @@ their invoice will arrive by email or text message. Taking payment online
 later would require Stripe's publishable key plus a server-created
 PaymentIntent — never put a Stripe secret key in the browser.
 
+## Distance & summary
+
+- **Miles:** the estimate screen computes driving miles between the two
+  ZIPs (zippopotam.us → OSRM, no keys) and shows "≈ N miles driving".
+  Miles flow into the booking record, the broker email, and the sheet.
+- **Move summary:** the confirmation screen's download button generates a
+  branded PNG (logo, booking ref, all details, estimate) via canvas —
+  no dependencies.
+
 ## Booking alerts
 
 Paid bookings trigger `POST /api/notify-booking` (Cloudflare Pages Function

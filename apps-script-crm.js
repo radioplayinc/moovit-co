@@ -23,7 +23,7 @@ var SHARED_SECRET = 'change-me-to-a-random-string'; // <-- make something random
 var SHEET_NAME = 'Bookings';
 var HEADERS = ['Timestamp', 'Ref', 'Status', 'Name', 'Email', 'Phone',
   'Move type', 'Move size', 'From ZIP', 'To ZIP', 'Date', 'Time window',
-  'Stairs', 'Packing', 'Heavy items', 'Estimate'];
+  'Stairs', 'Packing', 'Heavy items', 'Miles', 'Estimate'];
 
 function doGet() {
   return json({ ok: true, service: 'moovit-crm' });
@@ -36,16 +36,20 @@ function doPost(e) {
       return json({ ok: false, error: 'bad secret' });
     }
     var b = data.booking || {};
-    sheet().appendRow([
-      new Date(),
-      b.ref || '', b.status || 'confirmed',
-      b.name || '', b.email || '', b.phone || '',
-      b.moveType || '', b.size || '',
-      b.fromZip || '', b.toZip || '',
-      b.date || '', b.time || '',
-      b.stairs || '', b.packing || '', b.heavy || '',
-      b.estimate != null ? b.estimate : ''
-    ]);
+    var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    if (!sh) sh = SpreadsheetApp.getActiveSpreadsheet().insertSheet(SHEET_NAME);
+    var headers = ensureHeaders(sh);
+    var vals = {
+      'Timestamp': new Date(), 'Ref': b.ref || '', 'Status': b.status || 'confirmed',
+      'Name': b.name || '', 'Email': b.email || '', 'Phone': b.phone || '',
+      'Move type': b.moveType || '', 'Move size': b.size || '',
+      'From ZIP': b.fromZip || '', 'To ZIP': b.toZip || '',
+      'Date': b.date || '', 'Time window': b.time || '',
+      'Stairs': b.stairs || '', 'Packing': b.packing || '', 'Heavy items': b.heavy || '',
+      'Miles': b.miles != null ? b.miles : '',
+      'Estimate': b.estimate != null ? b.estimate : ''
+    };
+    sh.appendRow(headers.map(function(h){ return vals[h] !== undefined ? vals[h] : ''; }));
     MailApp.sendEmail({
       to: BROKER_EMAIL,
       subject: 'New Moovit booking ' + (b.ref || ''),
@@ -57,17 +61,23 @@ function doPost(e) {
   }
 }
 
-function sheet() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sh = ss.getSheetByName(SHEET_NAME);
-  if (!sh) {
-    sh = ss.insertSheet(SHEET_NAME);
-  }
+function ensureHeaders(sh) {
   if (sh.getLastRow() === 0) {
     sh.appendRow(HEADERS);
     sh.setFrozenRows(1);
+    return HEADERS.slice();
   }
-  return sh;
+  var existing = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(String);
+  HEADERS.forEach(function(h){
+    if (existing.indexOf(h) === -1) {
+      var at = (h === 'Miles') ? existing.indexOf('Estimate') : -1;
+      if (at === -1) at = existing.length;
+      sh.insertColumnBefore(at + 1);
+      sh.getRange(1, at + 1).setValue(h);
+      existing.splice(at, 0, h);
+    }
+  });
+  return existing;
 }
 
 function buildEmail(b) {
@@ -80,6 +90,7 @@ function buildEmail(b) {
     '',
     'Move:   ' + [b.size, b.moveType].filter(String).join(' · '),
     'Route:  ' + (b.fromZip || '-') + ' -> ' + (b.toZip || '-'),
+    'Distance: ' + (b.miles != null ? 'approx ' + Number(b.miles).toLocaleString() + ' miles' : '-'),
     'When:   ' + [b.date, b.time].filter(String).join(' · '),
     'Access: ' + [b.stairs, b.packing, b.heavy].filter(String).join(' · '),
     '',
