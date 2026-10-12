@@ -134,6 +134,15 @@
   <section class="screen" data-screen="pro-review"><div class="sheet"><p class="step">Review your profile</p><h2>You’re one step from the roster.</h2><div class="review-list"><div class="review-line"><span>Name</span><b id="reviewName">—</b></div><div class="review-line"><span>Vehicle</span><b id="reviewVehicle">—</b></div><div class="review-line"><span>Work area</span><b id="reviewArea">—</b></div><div class="review-line"><span>Availability</span><b id="reviewAvail">—</b></div><div class="review-line"><span>Payout</span><b id="reviewPayout">—</b></div></div><button class="primary" data-next="pro-welcome">Preview roster <span>→</span></button><p class="tiny">A live app would run identity, license, insurance and background checks before activation.</p></div></section>
 
   <section class="screen" data-screen="pro-welcome"><div class="sheet wide"><svg class="check" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="43"/><path d="m29 51 14 14 29-32"/></svg><div><p class="step">Roster preview</p><h2>Here’s what finding work feels like.</h2></div><div class="jobs"><article class="job"><div class="job-top"><h3>1-bedroom move</h3><span class="pay">$180</span></div><p>Sample · 4.2 mi · 3 hours · Saturday morning</p><button type="button" class="demoClaim">Preview claim</button></article><article class="job"><div class="job-top"><h3>Furniture delivery</h3><span class="pay">$95</span></div><p>Sample · 7.8 mi · 1.5 hours · Flexible pickup</p><button type="button" class="demoClaim">Preview claim</button></article></div><p class="demo-note" id="claimNote">Sample jobs for interface testing — not live work.</p><button class="secondary" data-next="role">Back to start</button></div></section>
+
+  <section class="screen" data-screen="broker-alerts"><div class="sheet">
+    <p class="step">Broker alerts</p>
+    <h2>Get pinged on every paid booking.</h2>
+    <p class="lede">One tap turns on push alerts on this device — no accounts, no fees. iPhone: add this page to your Home Screen first, then open it from there and tap below.</p>
+    <p class="error" id="alertsError"></p>
+    <button class="primary" id="enableAlerts" type="button">Enable alerts</button>
+    <p class="tiny" id="alertsStatus"></p>
+  </div></section>
 </main>
 <script>
 /* MOOVIT_DB — Supabase anonymous insert-only. Reads stay private in the Supabase Table Editor. */
@@ -151,13 +160,18 @@ window.MOOVIT_DB=(function(){
   }
   return{
     saveBooking:function(b){post('bookings',b)},
-    saveApplication:function(a){post('mover_applications',a)}
+    saveApplication:function(a){post('mover_applications',a)},
+    url:URL,key:KEY
   };
 })();
 </script>
 <script>
 (function(){
   'use strict';
+  var VAPID_PUBLIC_B64U='BIXY8laC5Y00iI8yAJsczLG9-Q8Lq-rKcIvX5A4Y8SBgr7Xk0p-3lRpqaFFdVfoe19-h2O3FIHY6liBN29aDOZM';
+  var brokerMode=false;
+  try{brokerMode=new URLSearchParams(window.location.search).has('alerts')}catch(e){}
+  function urlBase64ToUint8Array(s){var p='='.repeat((4-s.length%4)%4);var b=(s+p).replace(/-/g,'+').replace(/_/g,'/');var r=atob(b);var o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o}
   var app=document.getElementById('app');
   var screens=[].slice.call(document.querySelectorAll('.screen'));
   var current='loader';
@@ -167,8 +181,33 @@ window.MOOVIT_DB=(function(){
   var proFlow=['role','pro-name','pro-vehicle','pro-lift','pro-gear','pro-area','pro-avail','pro-license','pro-payout','pro-review','pro-welcome'];
   var progress=document.getElementById('progressFill');
 
-  window.setTimeout(function(){document.getElementById('enterBtn').classList.add('ready')},1850);
+  if(brokerMode){
+    var _l=document.querySelector('[data-screen="loader"]');if(_l)_l.classList.remove('active');
+    var _b=document.querySelector('[data-screen="broker-alerts"]');if(_b){_b.classList.add('active');splitTitle(_b.querySelector('h2'));}
+    current='broker-alerts';
+  }else{
+    window.setTimeout(function(){document.getElementById('enterBtn').classList.add('ready')},1850);
+  }
   document.getElementById('enterBtn').addEventListener('click',function(){app.classList.add('in-flow');go('role',true)});
+  document.getElementById('enableAlerts').addEventListener('click',function(){
+    var errEl=document.getElementById('alertsError'),stEl=document.getElementById('alertsStatus');
+    errEl.textContent='';stEl.textContent='Working…';
+    (async function(){
+      if(!('serviceWorker' in navigator))throw new Error('This browser does not support push notifications.');
+      var reg=await navigator.serviceWorker.register('/sw.js');
+      var perm=await Notification.requestPermission();
+      if(perm!=='granted')throw new Error('Notifications are blocked — allow them in the browser or system settings and try again.');
+      var sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_B64U)});
+      var j=sub.toJSON();
+      var res=await fetch(window.MOOVIT_DB.url+'/rest/v1/push_subscriptions',{
+        method:'POST',
+        headers:{'apikey':window.MOOVIT_DB.key,'Authorization':'Bearer '+window.MOOVIT_DB.key,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+        body:JSON.stringify({endpoint:j.endpoint,keys:j.keys})
+      });
+      if(!res.ok)throw new Error('Could not save the subscription. Try again.');
+      stEl.textContent='Alerts on. This device will buzz on every paid booking.';
+    })().catch(function(e){stEl.textContent='';errEl.textContent=(e&&e.message)||'Could not enable alerts.';});
+  });
 
   function splitTitle(el){
     if(!el || el.dataset.splitDone)return;
@@ -196,7 +235,7 @@ window.MOOVIT_DB=(function(){
     if(id==='pro-review'){
       text('reviewName',state.proName||'—');text('reviewVehicle',state.vehicle||'—');text('reviewArea',(state.proZip||'—')+' · '+(state.radius||''));text('reviewAvail',state.availability||'—');text('reviewPayout',state.payout||'—');
     }
-    if(id==='cust-confirm')text('bookingRef','MV-'+String(Math.floor(1000+Math.random()*9000)));
+    if(id==='cust-confirm')text('bookingRef',state.bookingRef||('MV-'+String(Math.floor(1000+Math.random()*9000))));
   }
   function text(id,value){var el=document.getElementById(id);if(el)el.textContent=value}
   function formatDate(v){if(!v)return 'Date TBD';var d=new Date(v+'T12:00:00');return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}
@@ -265,6 +304,20 @@ window.MOOVIT_DB=(function(){
       answers:state
     });
     state.bookingSaved=true;
+    if(state.lockChoice!=='Send quote only'){
+      state.bookingRef='MV-'+Math.floor(1000+Math.random()*9000);
+      try{
+        fetch('/api/notify-booking',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
+          body:JSON.stringify({ref:state.bookingRef,
+            name:state.custName||'',phone:state.custPhone||'',email:state.custEmail||'',
+            size:state.moveSize||'',moveType:state.moveType||'',
+            fromZip:state.fromZip||'',toZip:state.toZip||'',
+            date:formatDate(state.moveDate),time:state.timeWindow||'',
+            stairs:state.stairs||'',packing:state.packing||'',heavy:state.heavy||'',
+            estimate:estimate()})
+        }).catch(function(){});
+      }catch(e){}
+    }
     go('cust-confirm',true)
   });
   [].slice.call(document.querySelectorAll('.demoClaim')).forEach(function(btn){btn.addEventListener('click',function(){

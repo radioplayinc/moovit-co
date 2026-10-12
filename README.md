@@ -43,6 +43,35 @@ and stores only the last four digits. Going live requires Stripe's
 publishable key plus a server-created PaymentIntent — never put a Stripe
 secret key in the browser.
 
+## Booking alerts
+
+Paid bookings trigger `POST /api/notify-booking` (Cloudflare Pages Function
+in `functions/`). Quote-only and abandoned leads do not alert.
+
+- **Push (self-owned, no vendors):** Web Push via VAPID + `sw.js`. The
+  broker opens `https://moovit-co.pages.dev/?alerts` and taps "Enable
+  alerts" (iPhone: add the page to the Home Screen first, then open it
+  from there). Subscriptions save to the `push_subscriptions` table.
+  Needs Pages env vars: `VAPID_PRIVATE_KEY` (JWK JSON), `VAPID_SUBJECT`
+  (e.g. `mailto:you@domain`), `SUPABASE_SERVICE_KEY`. Table SQL:
+  ```sql
+  create table if not exists push_subscriptions (
+    endpoint text primary key,
+    keys jsonb not null,
+    created_at timestamptz default now()
+  );
+  alter table push_subscriptions enable row level security;
+  drop policy if exists "anon insert" on push_subscriptions;
+  create policy "anon insert" on push_subscriptions
+    for insert to anon with check (true);
+  ```
+- **Email (optional):** `RESEND_API_KEY` + `ALERT_EMAIL` (`ALERT_FROM`
+  optional) — full details via Resend, free tier.
+- **SMS (optional):** `TWILIO_SID`, `TWILIO_TOKEN`, `TWILIO_FROM`,
+  `NOTIFY_TO` — texts the booking via Twilio.
+
+Redeploy after adding env vars so they take effect.
+
 ## Deploy
 
-Push to `main` — Cloudflare Pages auto-deploys.
+Push to `main` — Cloudflare Pages auto-deploys (functions included).
