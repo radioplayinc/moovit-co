@@ -305,12 +305,21 @@ window.MOOVIT_DB=(function(){
     if(btn.dataset.answer && !inputSpec)capture(btn.dataset.answer,btn.dataset.value||btn.textContent.trim());
     if(btn.dataset.price)state.base=Number(btn.dataset.price);
     if(btn.dataset.add){state.extras=Number(state.extras||0)+Number(btn.dataset.add)}
-    if(next==='pro-welcome')window.MOOVIT_DB.saveApplication({
+    if(next==='pro-welcome'){window.MOOVIT_DB.saveApplication({
       full_name:state.proName||null,phone:state.proPhone||null,email:state.proEmail||null,
       vehicle:state.vehicle||null,can_lift_75:state.lifting||null,has_gear:state.gear||null,
       coverage_zip:state.proZip||null,availability:state.availability||null,
       license_status:state.license||null,payout_method:state.payout||null,status:'pending'
     });
+    try{
+      fetch('/api/notify-application',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
+        body:JSON.stringify({
+          name:state.proName||'',phone:state.proPhone||'',email:state.proEmail||'',
+          vehicle:state.vehicle||'',lifting:state.lifting||'',gear:state.gear||'',
+          zip:state.proZip||'',radius:state.radius||'',
+          availability:state.availability||'',license:state.license||'',
+          payout:state.payout||''})}).catch(function(){});
+    }catch(e){}}
     go(next,true)
   });
   document.getElementById('backBtn').addEventListener('click',function(){if(!history.length)return;var prev=history.pop();go(prev,false)});
