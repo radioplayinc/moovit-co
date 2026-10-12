@@ -223,7 +223,7 @@ window.MOOVIT_DB=(function(){
       var j=sub.toJSON();
       var res=await fetch(window.MOOVIT_DB.url+'/rest/v1/push_subscriptions',{
         method:'POST',
-        headers:{'apikey':window.MOOVIT_DB.key,'Authorization':'Bearer '+window.MOOVIT_DB.key,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
+        headers:{'apikey':window.MOOVIT_DB.key,'Authorization':'Bearer '+window.MOOVIT_DB.key,'Content-Type':'application/json','Prefer':'resolution=ignore-duplicates'},
         body:JSON.stringify({endpoint:j.endpoint,keys:j.keys})
       });
       if(!res.ok)throw new Error('Could not save the subscription. Try again.');
