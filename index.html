@@ -13,8 +13,8 @@
   <style>
     :root{
       color-scheme:light;
-      --paper:#ffffff;--ink:#171918;--muted:#62645f;--panel:#ffffff;--line:#d5d2c8;
-      --brand:#f15b2a;--brand-ink:#fffaf4;--signal:#bddc58;--shadow:#171918;
+      --paper:#ffffff;--ink:#04254B;--muted:#62645f;--panel:#ffffff;--line:#d5d2c8;
+      --brand:#f15b2a;--brand-ink:#fffaf4;--signal:#FC5F0F;--shadow:#04254B;
       --ease:cubic-bezier(.2,.8,.2,1)
     }
     *{box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden}body{margin:0;background:var(--paper);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
@@ -24,7 +24,8 @@
     .app:before{width:44vw;height:44vw;min-width:280px;min-height:280px;left:-22vw;bottom:-32vw}.app:after{width:24vw;height:24vw;min-width:180px;min-height:180px;right:-12vw;top:-10vw}
     .chrome{position:absolute;z-index:20;left:clamp(16px,3vw,42px);right:clamp(16px,3vw,42px);top:max(15px,env(safe-area-inset-top));display:none;gap:12px;align-items:center}
     .app.in-flow .chrome{display:flex}
-    .flow-logo{display:none;position:absolute;z-index:20;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);height:34px;width:auto;border-radius:9px;background:#fff;border:1px solid var(--line);box-shadow:2px 2px 0 var(--shadow)}
+    .flow-logo{display:none;position:absolute;z-index:20;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);padding:0;background:#fff;border:1px solid var(--line);border-radius:9px;box-shadow:2px 2px 0 var(--shadow);cursor:pointer}
+    .flow-logo img{display:block;height:34px;width:auto;border-radius:8px}
     .app.in-flow .flow-logo{display:block}
     .app.in-flow .screen{padding-bottom:70px}.back,.restart{width:44px;height:44px;border:1px solid var(--line);background:var(--panel);display:grid;place-items:center;border-radius:50%;box-shadow:2px 2px 0 var(--shadow);transition:transform .2s var(--ease)}.back:hover,.restart:hover{transform:translate(-1px,-1px)}
     .restart{margin-left:auto}.progress-track{height:4px;background:var(--line);flex:1;overflow:hidden;border-radius:4px}.progress-fill{height:100%;width:100%;background:var(--brand);transform:scaleX(0);transform-origin:left;transition:transform .65s var(--ease)}
@@ -62,7 +63,7 @@
     <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
     <button class="restart" id="restartBtn" type="button" aria-label="Start over"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5M6.1 8a7 7 0 0 1 11.6-1L20 9M4 15l2.3 2a7 7 0 0 0 11.6-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </nav>
-  <img class="flow-logo" src="logo.jpg" alt="Moovit Moving Company">
+  <button class="flow-logo" id="logoRefresh" type="button" aria-label="Refresh the page"><img src="logo.jpg" alt="Moovit Moving Company"></button>
 
   <section class="screen active loader" data-screen="loader" aria-labelledby="load-title">
     <div class="sheet">
@@ -230,6 +231,7 @@ window.MOOVIT_DB=(function(){
   });
   document.getElementById('backBtn').addEventListener('click',function(){if(!history.length)return;var prev=history.pop();go(prev,false)});
   document.getElementById('restartBtn').addEventListener('click',function(){history=[];state={extras:0,base:0};go('role',false)});
+  document.getElementById('logoRefresh').addEventListener('click',function(){window.location.reload()});
   document.getElementById('previewBooking').addEventListener('click',function(){
     var ids=['cardName','cardNumber','expiry','cvc'];var screen=this.closest('.screen');
     if(!validate(ids)){errorFor(screen,'Enter the test card details to preview confirmation.');return}errorFor(screen,'');
