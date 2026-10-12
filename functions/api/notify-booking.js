@@ -228,6 +228,7 @@ export async function onRequestPost(context) {
       try { jr = await res.json(); } catch (e) {}
       results.sheet = res.ok && jr.ok === true;
       if (jr.email) results.sheetEmail = true;
+      if (jr.customerEmail) results.customerEmail = true;
       if (jr.error) results.sheetError = jr.error;
     } catch (e) {
       results.sheet = false;

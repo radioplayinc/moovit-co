@@ -3,7 +3,8 @@
  * SETUP (5 minutes):
  * 1. Create a Google Sheet (this will be the CRM).
  * 2. In the sheet: Extensions → Apps Script. Delete any starter code,
- *    paste this entire file, and set BROKER_EMAIL + SHARED_SECRET below.
+ *    paste this entire file, and set BROKER_EMAIL + BUSINESS_NAME +
+ *    SHARED_SECRET below.
  * 3. Deploy → New deployment → type "Web app":
  *      Execute as: Me
  *      Who has access: Anyone
@@ -13,11 +14,13 @@
  *      SHEETS_SECRET     = the same secret you set below
  *    → Redeploy once.
  *
- * Every paid booking then appends a row to the "Bookings" tab and emails
- * the full details to BROKER_EMAIL from your Gmail (free).
+ * Every paid booking then appends a row to the "Bookings" tab, emails
+ * the full details to BROKER_EMAIL from your Gmail (free), and emails
+ * a customer-friendly summary to the customer's address.
  */
 
 var BROKER_EMAIL = 'you@yourdomain.com'; // <-- the broker's email
+var BUSINESS_NAME = 'Moovit'; // <-- customer-facing business name
 var SHARED_SECRET = 'change-me-to-a-random-string'; // <-- make something random
 
 var SHEET_NAME = 'Bookings';
@@ -61,7 +64,17 @@ function doPost(e) {
       subject: 'New Moovit booking ' + (b.ref || ''),
       body: buildEmail(b)
     });
-    return json({ ok: true, email: true });
+    var customerEmailed = false;
+    if (b.email) {
+      MailApp.sendEmail({
+        to: b.email,
+        subject: 'Your move with ' + BUSINESS_NAME + ' is reserved — ' + (b.ref || ''),
+        body: buildCustomerEmailText(b),
+        htmlBody: buildCustomerEmailHtml(b)
+      });
+      customerEmailed = true;
+    }
+    return json({ ok: true, email: true, customerEmail: customerEmailed });
   } catch (err) {
     return json({ ok: false, error: String(err) });
   }
@@ -135,6 +148,58 @@ function buildEmail(b) {
     'Estimate: $' + (b.estimate != null ? b.estimate : '-')
   ];
   return lines.join('\n');
+}
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function buildCustomerEmailText(b) {
+  var lines = [
+    'Hi ' + (b.name || 'there') + ',',
+    '',
+    'Your move with ' + BUSINESS_NAME + ' is reserved. Here is your summary:',
+    '',
+    'Booking ref: ' + (b.ref || '-'),
+    'Route: ' + (b.fromZip || '-') + ' -> ' + (b.toZip || '-'),
+    'Distance: ' + (b.miles != null ? 'approx ' + Number(b.miles).toLocaleString() + ' driving miles' : '-'),
+    'Date: ' + ([b.date, b.time].filter(String).join(' · ') || '-'),
+    'Move: ' + ([b.size, b.moveType].filter(String).join(' · ') || '-'),
+    'Details: ' + ([b.stairs, b.packing, b.heavy].filter(String).join(' · ') || '-'),
+    '',
+    'Estimated total: $' + (b.estimate != null ? b.estimate : '-'),
+    '',
+    'No payment due today — we will send your invoice by email or text message, and you can pay whenever you are ready.',
+    '',
+    'Questions? Just reply to this email.',
+    '',
+    '— ' + BUSINESS_NAME
+  ];
+  return lines.join('\n');
+}
+
+function buildCustomerEmailHtml(b) {
+  function row(k, v) {
+    return '<tr><td style="padding:8px 12px;color:#5b6470;font-size:13px;">' + k + '</td>' +
+      '<td style="padding:8px 12px;font-size:14px;font-weight:600;color:#1a1a1a;text-align:right;">' + v + '</td></tr>';
+  }
+  var rows =
+    row('Booking ref', esc(b.ref || '-')) +
+    row('Route', esc(b.fromZip || '-') + ' → ' + esc(b.toZip || '-')) +
+    row('Distance', b.miles != null ? 'approx ' + Number(b.miles).toLocaleString() + ' miles' : '-') +
+    row('Date', esc([b.date, b.time].filter(String).join(' · ') || '-')) +
+    row('Move', esc([b.size, b.moveType].filter(String).join(' · ') || '-')) +
+    row('Details', esc([b.stairs, b.packing, b.heavy].filter(String).join(' · ') || '-'));
+  return '<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a;">' +
+    '<h2 style="color:#1a1a1a;margin:0 0 8px;">Your move is reserved</h2>' +
+    '<p style="font-size:14px;">Hi ' + esc(b.name || 'there') + ',</p>' +
+    '<p style="font-size:14px;">Your move with ' + esc(BUSINESS_NAME) + ' is reserved. Here is your summary:</p>' +
+    '<table style="width:100%;border-collapse:collapse;background:#f7f7f5;border:1px solid #e5e5e0;border-radius:10px;margin:16px 0;">' + rows + '</table>' +
+    '<p style="font-size:18px;">Estimated total: <strong>$' + esc(b.estimate != null ? b.estimate : '-') + '</strong></p>' +
+    '<p style="font-size:14px;color:#5b6470;">No payment due today — we will send your invoice by email or text message, and you can pay whenever you are ready.</p>' +
+    '<p style="font-size:14px;">Questions? Just reply to this email.</p>' +
+    '<p style="font-size:14px;">— ' + esc(BUSINESS_NAME) + '</p></div>';
 }
 
 function json(obj) {
