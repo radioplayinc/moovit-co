@@ -6,6 +6,7 @@
 //   SUPABASE_SERVICE_KEY (to read push subscriptions),
 //   RESEND_API_KEY, ALERT_EMAIL, ALERT_FROM (email),
 //   TWILIO_SID, TWILIO_TOKEN, TWILIO_FROM, NOTIFY_TO (SMS)
+//   SHEETS_WEBAPP_URL, SHEETS_SECRET (Google Sheets CRM + Gmail email via Apps Script)
 
 const SUPABASE_URL = 'https://zhtfcrrvhqybhtoyppir.supabase.co';
 const te = new TextEncoder();
@@ -201,6 +202,35 @@ export async function onRequestPost(context) {
       );
       results.sms = res.ok;
     } catch (e) { results.sms = false; }
+  }
+
+  // Google Sheets CRM + broker email via Apps Script (optional).
+  if (env.SHEETS_WEBAPP_URL) {
+    try {
+      const res = await fetch(env.SHEETS_WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          secret: env.SHEETS_SECRET || '',
+          booking: {
+            ref: (b.ref || '').trim(), status: 'confirmed',
+            name: b.name || '', email: b.email || '', phone: b.phone || '',
+            size: b.size || '', moveType: b.moveType || '',
+            fromZip: b.fromZip || '', toZip: b.toZip || '',
+            date: b.date || '', time: b.time || '',
+            stairs: b.stairs || '', packing: b.packing || '', heavy: b.heavy || '',
+            estimate: b.estimate != null ? b.estimate : null,
+          },
+        }),
+      });
+      let jr = {};
+      try { jr = await res.json(); } catch (e) {}
+      results.sheet = res.ok && jr.ok === true;
+      if (jr.email) results.sheetEmail = true;
+      if (jr.error) results.sheetError = jr.error;
+    } catch (e) {
+      results.sheet = false;
+    }
   }
 
   return json({ ok: true, ...results });

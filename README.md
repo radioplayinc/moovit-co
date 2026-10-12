@@ -69,6 +69,12 @@ in `functions/`). Quote-only and abandoned leads do not alert.
   optional) — full details via Resend, free tier.
 - **SMS (optional):** `TWILIO_SID`, `TWILIO_TOKEN`, `TWILIO_FROM`,
   `NOTIFY_TO` — texts the booking via Twilio.
+- **Google Sheets CRM + Gmail email (optional):** paste
+  `apps-script-crm.js` into the sheet's Extensions → Apps Script, set
+  `BROKER_EMAIL` + `SHARED_SECRET`, deploy as a web app (Execute as: Me,
+  Who has access: Anyone). Add Pages env vars `SHEETS_WEBAPP_URL` (the
+  web app URL) and `SHEETS_SECRET` (same secret). Every paid booking then
+  appends a row and emails the full details from the broker's Gmail.
 
 Redeploy after adding env vars so they take effect.
 
