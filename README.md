@@ -38,10 +38,10 @@ alter table mover_applications add column if not exists email text;
 
 ## Payments
 
-**TEST MODE.** The checkout collects card details into a demo confirmation
-and stores only the last four digits. Going live requires Stripe's
-publishable key plus a server-created PaymentIntent — never put a Stripe
-secret key in the browser.
+No card is collected on the site. After booking, the customer is told
+their invoice will arrive by email or text message. Taking payment online
+later would require Stripe's publishable key plus a server-created
+PaymentIntent — never put a Stripe secret key in the browser.
 
 ## Booking alerts
 
