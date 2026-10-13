@@ -59,10 +59,19 @@ function doPost(e) {
       'Estimate': b.estimate != null ? b.estimate : ''
     };
     sh.appendRow(headers.map(function(h){ return vals[h] !== undefined ? vals[h] : ''; }));
+    var attachments = [];
+    if (b.summaryPng) {
+      try {
+        var b64 = String(b.summaryPng).split(',')[1] || String(b.summaryPng);
+        attachments.push(Utilities.newBlob(Utilities.base64Decode(b64), 'image/png',
+          'move-summary-' + (b.ref || 'booking') + '.png'));
+      } catch (e) {}
+    }
     MailApp.sendEmail({
       to: BROKER_EMAIL,
       subject: 'New Moovit booking ' + (b.ref || ''),
-      body: buildEmail(b)
+      body: buildEmail(b),
+      attachments: attachments
     });
     var customerEmailed = false;
     if (b.email) {
@@ -70,7 +79,8 @@ function doPost(e) {
         to: b.email,
         subject: 'Your move with ' + BUSINESS_NAME + ' is reserved — ' + (b.ref || ''),
         body: buildCustomerEmailText(b),
-        htmlBody: buildCustomerEmailHtml(b)
+        htmlBody: buildCustomerEmailHtml(b),
+        attachments: attachments
       });
       customerEmailed = true;
     }

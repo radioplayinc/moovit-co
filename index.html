@@ -586,17 +586,26 @@ window.MOOVIT_DB=(function(){
     state.bookingSaved=true;
     if(state.lockChoice!=='Send quote only'){
       state.bookingRef='MV-'+Math.floor(1000+Math.random()*9000);
+      var _notifyBody={ref:state.bookingRef,
+        name:state.custName||'',phone:state.custPhone||'',email:state.custEmail||'',
+        size:state.moveSize||'',moveType:state.moveType||'',
+        fromZip:state.fromZip||'',toZip:state.toZip||'',
+        date:formatDate(state.moveDate),time:state.timeWindow||'',
+        stairs:state.stairs||'',packing:state.packing||'',heavy:state.heavy||'',
+        estimate:estimate(),miles:(state.miles!=null?state.miles:null)};
+      var _sendNotify=function(png){
+        try{
+          var body=Object.assign({},_notifyBody);if(png)body.summaryPng=png;
+          fetch('/api/notify-booking',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
+            body:JSON.stringify(body)}).catch(function(){});
+        }catch(e){}
+      };
       try{
-        fetch('/api/notify-booking',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
-          body:JSON.stringify({ref:state.bookingRef,
-            name:state.custName||'',phone:state.custPhone||'',email:state.custEmail||'',
-            size:state.moveSize||'',moveType:state.moveType||'',
-            fromZip:state.fromZip||'',toZip:state.toZip||'',
-            date:formatDate(state.moveDate),time:state.timeWindow||'',
-            stairs:state.stairs||'',packing:state.packing||'',heavy:state.heavy||'',
-            estimate:estimate(),miles:(state.miles!=null?state.miles:null)})
-        }).catch(function(){});
-      }catch(e){}
+        buildSummaryCanvas(state.bookingRef).then(function(cv){
+          var png=null;try{png=cv.toDataURL('image/png')}catch(e){}
+          _sendNotify(png);
+        }).catch(function(){_sendNotify(null)});
+      }catch(e){_sendNotify(null)}
     }
     var _cb=this;
     if(!reducedMotion){burstFrom(_cb);goMorph(_cb,'cust-confirm')}else{go('cust-confirm',true)}
@@ -604,11 +613,9 @@ window.MOOVIT_DB=(function(){
   [].slice.call(document.querySelectorAll('.demoClaim')).forEach(function(btn){btn.addEventListener('click',function(){
     [].slice.call(document.querySelectorAll('.demoClaim')).forEach(function(b){b.textContent='Preview claim';b.disabled=false});btn.textContent='Sample claimed ✓';btn.disabled=true;text('claimNote','Demo state only — no live job was claimed.');
   })});
-  document.getElementById('downloadSummary').addEventListener('click',function(){
-    var btn=this,orig=btn.textContent;btn.disabled=true;btn.textContent='Preparing…';
-    function finish(){btn.disabled=false;btn.textContent=orig}
+  function buildSummaryCanvas(ref){
     function loadImg(src){return new Promise(function(res,rej){var i=new Image();i.onload=function(){res(i)};i.onerror=rej;i.src=src})}
-    (async function(){
+    return (async function(){
       try{await document.fonts.ready;}catch(e){}
       var W=1200,H=1840,cv=document.createElement('canvas');cv.width=W;cv.height=H;
       var x=cv.getContext('2d');
@@ -623,7 +630,6 @@ window.MOOVIT_DB=(function(){
       var rw=140,rh=10;x.beginPath();x.roundRect((W-rw)/2,545,rw,rh,rh/2);x.fill();
       x.fillStyle=muted;x.font='400 26px "IBM Plex Mono", monospace';
       x.fillText('M O V E   S U M M A R Y',W/2,625);
-      var ref=state.bookingRef||'MV-0000';
       x.strokeStyle='#9aa5b1';x.lineWidth=3;x.setLineDash([12,9]);
       x.beginPath();x.roundRect((W-320)/2,665,320,86,18);x.stroke();x.setLineDash([]);
       x.fillStyle=ink;x.font='700 42px "IBM Plex Mono", monospace';
@@ -653,6 +659,14 @@ window.MOOVIT_DB=(function(){
       x.fillText('Invoice will be sent by email or text message.',W/2,1755);
       x.font='400 22px "IBM Plex Mono", monospace';
       x.fillText('moovit-co.pages.dev',W/2,1795);
+      return cv;
+    })();
+  }
+  document.getElementById('downloadSummary').addEventListener('click',function(){
+    var btn=this,orig=btn.textContent;btn.disabled=true;btn.textContent='Preparing…';
+    function finish(){btn.disabled=false;btn.textContent=orig}
+    var ref=state.bookingRef||'MV-0000';
+    buildSummaryCanvas(ref).then(function(cv){
       cv.toBlob(function(blob){
         if(blob){
           var url=URL.createObjectURL(blob),a=document.createElement('a');
@@ -662,7 +676,7 @@ window.MOOVIT_DB=(function(){
         }
         finish();
       },'image/png');
-    })();
+    }).catch(function(){finish()});
   });
   if(window.matchMedia('(pointer:fine)').matches && !window.matchMedia('(prefers-reduced-motion:reduce)').matches){
     [].slice.call(document.querySelectorAll('.choice')).forEach(function(card){card.addEventListener('pointermove',function(e){var r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;card.style.transform='perspective(700px) rotateX('+(-y*4)+'deg) rotateY('+(x*5)+'deg) translate(-2px,-2px)'});card.addEventListener('pointerleave',function(){card.style.transform=''})});
