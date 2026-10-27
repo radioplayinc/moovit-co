@@ -87,6 +87,16 @@ in `functions/`). Quote-only and abandoned leads do not alert.
 
 Redeploy after adding env vars so they take effect.
 
+## SEO pack (free search + AI visibility)
+
+Ships in this template since 2026-10-27. Spec: `~/workspace/custom-skills/bookit-site/references/SEO_PACK.md`.
+
+- `index.html` head: title, meta description, canonical, OG/Twitter, JSON-LD `@graph` (`MovingCompany` + `FAQPage`, 7 Q&As), plus a `<noscript>` plain-text summary. The no-scroll booking flow is untouched — no visible footer was added to the booking page.
+- `faq.html`: a normal scrolling page in the same design system with the same 7 FAQs in visible HTML — the page Google indexes and AI tools quote.
+- `sitemap.xml`, `robots.txt`, `llms.txt` at the root.
+- Reskin swaps: `SITE_URL` everywhere, business name, phone, narrowed `SERVICE_AREA`, schema type per vertical, FAQ answers rewritten for the trade and identical in all three copies. Never invent an area, rate, social, or review.
+- After deploy (free): submit the sitemap in Google Search Console + Bing Webmaster Tools, and set up a Google Business Profile with the same name/phone/area as the JSON-LD.
+
 ## Deploy
 
 Push to `main` — Cloudflare Pages auto-deploys (functions included).

@@ -1,0 +1,17 @@
+# Moovit
+
+> Book movers in minutes. Get an instant moving estimate and reserve your crew — no card needed, invoice by email or text.
+
+## Facts
+
+- Business: Moovit, a moving company booking site.
+- Phone: 805-825-2311 (tel:+18058252311).
+- How it works: choose whether you need stuff moved, answer questions about move size, pickup and drop-off ZIP codes, date, stairs, packing, and heavy items, review an instant itemized estimate, then leave your name, email, and phone to get a booking reference.
+- Payment: no card is collected on the site and no payment is due today. The invoice is sent by email or text message.
+- Distance: the estimate shows the driving distance for the route. A booking is never blocked by distance.
+- Movers: movers can apply to join the roster from the same booking page.
+
+## Pages
+
+- [Book movers](https://moovit-co.pages.dev/): the booking flow — instant estimate to confirmed booking reference.
+- [Moving questions and answers](https://moovit-co.pages.dev/faq.html): cost, how to book, payment, service area, stairs, packing, heavy items, and quote-only bookings.
