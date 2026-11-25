@@ -594,6 +594,17 @@ window.MOOVIT_DB=(function(){
       customer_phone:state.custPhone||null,card_last4:null,
       answers:state
     });
+    try{
+      fetch('/api/notify-booking',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
+        body:JSON.stringify({ref:'LEAD-'+Date.now().toString(36).toUpperCase(),status:'lead',
+          name:state.custName||'',phone:state.custPhone||'',email:state.custEmail||'',
+          size:state.moveSize||'',moveType:state.moveType||'',
+          fromZip:state.fromZip||'',toZip:state.toZip||'',
+          date:formatDate(state.moveDate),time:state.timeWindow||'',
+          stairs:state.stairs||'',packing:state.packing||'',heavy:state.heavy||'',
+          estimate:state.base?estimate():null})
+      }).catch(function(){});
+    }catch(e){}
   }
   window.addEventListener('pagehide',saveLead);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveLead()});
@@ -647,29 +658,28 @@ window.MOOVIT_DB=(function(){
       answers:state
     });
     state.bookingSaved=true;
-    if(state.lockChoice!=='Send quote only'){
-      state.bookingRef='MV-'+Math.floor(1000+Math.random()*9000);
-      var _notifyBody={ref:state.bookingRef,
-        name:state.custName||'',phone:state.custPhone||'',email:state.custEmail||'',
-        size:state.moveSize||'',moveType:state.moveType||'',
-        fromZip:state.fromZip||'',toZip:state.toZip||'',
-        date:formatDate(state.moveDate),time:state.timeWindow||'',
-        stairs:state.stairs||'',packing:state.packing||'',heavy:state.heavy||'',
-        estimate:estimate(),miles:(state.miles!=null?state.miles:null)};
-      var _sendNotify=function(png){
-        try{
-          var body=Object.assign({},_notifyBody);if(png)body.summaryPng=png;
-          fetch('/api/notify-booking',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
-            body:JSON.stringify(body)}).catch(function(){});
-        }catch(e){}
-      };
+    state.bookingRef='MV-'+Math.floor(1000+Math.random()*9000);
+    var _notifyBody={ref:state.bookingRef,
+      status:(state.lockChoice==='Send quote only')?'quote':'confirmed',
+      name:state.custName||'',phone:state.custPhone||'',email:state.custEmail||'',
+      size:state.moveSize||'',moveType:state.moveType||'',
+      fromZip:state.fromZip||'',toZip:state.toZip||'',
+      date:formatDate(state.moveDate),time:state.timeWindow||'',
+      stairs:state.stairs||'',packing:state.packing||'',heavy:state.heavy||'',
+      estimate:estimate(),miles:(state.miles!=null?state.miles:null)};
+    var _sendNotify=function(png){
       try{
-        buildSummaryCanvas(state.bookingRef).then(function(cv){
-          var png=null;try{png=cv.toDataURL('image/png')}catch(e){}
-          _sendNotify(png);
-        }).catch(function(){_sendNotify(null)});
-      }catch(e){_sendNotify(null)}
-    }
+        var body=Object.assign({},_notifyBody);if(png)body.summaryPng=png;
+        fetch('/api/notify-booking',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
+          body:JSON.stringify(body)}).catch(function(){});
+      }catch(e){}
+    };
+    try{
+      buildSummaryCanvas(state.bookingRef).then(function(cv){
+        var png=null;try{png=cv.toDataURL('image/png')}catch(e){}
+        _sendNotify(png);
+      }).catch(function(){_sendNotify(null)});
+    }catch(e){_sendNotify(null)}
     var _cb=this;
     if(!reducedMotion){burstFrom(_cb);goMorph(_cb,'cust-confirm')}else{go('cust-confirm',true)}
   });

@@ -15,11 +15,16 @@
  *    → Redeploy once.
  *
  * Every paid booking then appends a row to the "Bookings" tab, emails
- * the full details to BROKER_EMAIL from your Gmail (free), and emails
- * a customer-friendly summary to the customer's address.
+ * the full details to BROKER_EMAIL and BASQI_EMAIL from your Gmail (free),
+ * and emails a customer-friendly summary to the customer's address.
+ * The branded summary PNG is attached, plus a PDF of it (Basqi forwards
+ * the PDF to demo prospects so they see what their customer would get).
+ * Leads (abandoners) and quote requests email too — same recipients, no
+ * attachment (no summary is rendered for a lead).
  */
 
 var BROKER_EMAIL = 'you@yourdomain.com'; // <-- the broker's email
+var BASQI_EMAIL = 'billionairebriang@gmail.com'; // <-- Basqi's inbox (confirm) — every booking/lead/quote also emails here
 var BUSINESS_NAME = 'Moovit'; // <-- customer-facing business name
 var SHARED_SECRET = 'change-me-to-a-random-string'; // <-- make something random
 
@@ -63,16 +68,34 @@ function doPost(e) {
     if (b.summaryPng) {
       try {
         var b64 = String(b.summaryPng).split(',')[1] || String(b.summaryPng);
-        attachments.push(Utilities.newBlob(Utilities.base64Decode(b64), 'image/png',
-          'move-summary-' + (b.ref || 'booking') + '.png'));
+        var pngBlob = Utilities.newBlob(Utilities.base64Decode(b64), 'image/png',
+          'move-summary-' + (b.ref || 'booking') + '.png');
+        attachments.push(pngBlob);
+        try {
+          attachments.push(pngToPdf(pngBlob, 'move-summary-' + (b.ref || 'booking') + '.pdf'));
+        } catch (e) {}
       } catch (e) {}
     }
-    MailApp.sendEmail({
-      to: BROKER_EMAIL,
-      subject: 'New Moovit booking ' + (b.ref || ''),
-      body: buildEmail(b),
-      attachments: attachments
-    });
+    var kind = b.status === 'lead' ? 'lead' : b.status === 'quote' ? 'quote request' : 'booking';
+    var emailedBroker = false, emailedBasqi = false;
+    try {
+      MailApp.sendEmail({
+        to: BROKER_EMAIL,
+        subject: 'New Moovit ' + kind + ' ' + (b.ref || ''),
+        body: buildEmail(b, kind),
+        attachments: attachments
+      });
+      emailedBroker = true;
+    } catch (e) {}
+    try {
+      MailApp.sendEmail({
+        to: BASQI_EMAIL,
+        subject: 'New Moovit ' + kind + ' ' + (b.ref || ''),
+        body: buildEmail(b, kind),
+        attachments: attachments
+      });
+      emailedBasqi = true;
+    } catch (e) {}
     var customerEmailed = false;
     if (b.email) {
       MailApp.sendEmail({
@@ -84,7 +107,7 @@ function doPost(e) {
       });
       customerEmailed = true;
     }
-    return json({ ok: true, email: true, customerEmail: customerEmailed });
+    return json({ ok: true, email: emailedBroker, basqiEmail: emailedBasqi, customerEmail: customerEmailed });
   } catch (err) {
     return json({ ok: false, error: String(err) });
   }
@@ -141,9 +164,9 @@ function handleMover(m) {
   return json({ ok: true, email: true });
 }
 
-function buildEmail(b) {
+function buildEmail(b, kind) {
   var lines = [
-    'New booking ' + (b.ref || ''),
+    'New ' + (kind || 'booking') + ' ' + (b.ref || ''),
     '',
     'Name:  ' + (b.name || '-'),
     'Phone: ' + (b.phone || '-'),
@@ -158,6 +181,16 @@ function buildEmail(b) {
     'Estimate: $' + (b.estimate != null ? b.estimate : '-')
   ];
   return lines.join('\n');
+}
+
+function pngToPdf(pngBlob, fileName) {
+  var doc = DocumentApp.create('tmp-' + fileName);
+  doc.getBody().appendImage(pngBlob);
+  doc.saveAndClose();
+  var pdf = DriveApp.getFileById(doc.getId()).getAs('application/pdf');
+  pdf.setName(fileName);
+  DriveApp.getFileById(doc.getId()).setTrashed(true);
+  return pdf;
 }
 
 function esc(s) {

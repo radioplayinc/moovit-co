@@ -117,7 +117,8 @@ export async function onRequestPost(context) {
     return json({ ok: false, reason: 'bad-json' }, 400);
   }
 
-  const title = `New Moovit booking ${(b.ref || '').trim()}`.trim();
+  const kind = b.status === 'lead' ? 'lead' : b.status === 'quote' ? 'quote request' : 'booking';
+  const title = `New Moovit ${kind} ${(b.ref || '').trim()}`.trim();
   const lines = [
     `Name: ${b.name || '—'}`,
     `Phone: ${b.phone || '—'}`,
@@ -213,7 +214,8 @@ export async function onRequestPost(context) {
         body: JSON.stringify({
           secret: env.SHEETS_SECRET || '',
           booking: {
-            ref: (b.ref || '').trim(), status: 'confirmed',
+            ref: (b.ref || '').trim(),
+            status: (b.status === 'lead' || b.status === 'quote') ? b.status : 'confirmed',
             name: b.name || '', email: b.email || '', phone: b.phone || '',
             size: b.size || '', moveType: b.moveType || '',
             fromZip: b.fromZip || '', toZip: b.toZip || '',
@@ -229,6 +231,7 @@ export async function onRequestPost(context) {
       try { jr = await res.json(); } catch (e) {}
       results.sheet = res.ok && jr.ok === true;
       if (jr.email) results.sheetEmail = true;
+      if (jr.basqiEmail) results.basqiEmail = true;
       if (jr.customerEmail) results.customerEmail = true;
       if (jr.error) results.sheetError = jr.error;
     } catch (e) {
