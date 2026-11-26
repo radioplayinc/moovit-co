@@ -670,7 +670,7 @@ window.MOOVIT_DB=(function(){
     var _sendNotify=function(png){
       try{
         var body=Object.assign({},_notifyBody);if(png)body.summaryPng=png;
-        fetch('/api/notify-booking',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
+        fetch('/api/notify-booking',{method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify(body)}).catch(function(){});
       }catch(e){}
     };
