@@ -191,7 +191,7 @@
   </div></div></section>
 
   <section class="screen" data-screen="cust-size"><div class="sheet"><p class="step">Move 02</p><h2>How much are we moving?</h2><div class="choices" style="--cols:4" data-count="4">
-    <button class="choice" data-answer="moveSize" data-price="220" data-value="A few items" data-next="cust-from"><strong>A few items</strong><small>1–5 pieces</small></button><button class="choice" data-answer="moveSize" data-price="380" data-value="Studio / 1 bed" data-next="cust-from"><strong>Studio / 1 bed</strong><small>Compact move</small></button><button class="choice" data-answer="moveSize" data-price="620" data-value="2–3 bedrooms" data-next="cust-from"><strong>2–3 bedrooms</strong><small>Standard home</small></button><button class="choice" data-answer="moveSize" data-price="940" data-value="4+ bedrooms" data-next="cust-from"><strong>4+ bedrooms</strong><small>Large move</small></button>
+    <button class="choice" data-answer="moveSize" data-price="175" data-value="A few items" data-next="cust-from"><strong>A few items</strong><small>1–5 pieces</small></button><button class="choice" data-answer="moveSize" data-price="325" data-value="Studio / 1 bed" data-next="cust-from"><strong>Studio / 1 bed</strong><small>Compact move</small></button><button class="choice" data-answer="moveSize" data-price="725" data-value="2–3 bedrooms" data-next="cust-from"><strong>2–3 bedrooms</strong><small>Standard home</small></button><button class="choice" data-answer="moveSize" data-price="1625" data-value="4+ bedrooms" data-next="cust-from"><strong>4+ bedrooms</strong><small>Large move</small></button>
   </div></div></section>
 
   <section class="screen" data-screen="cust-from"><div class="sheet"><p class="step">Move 03</p><h2>Where are we picking up?</h2><p class="lede">A ZIP code is enough for this first estimate.</p><div class="fields"><div class="field"><label for="fromZip">Pickup ZIP code</label><input id="fromZip" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="e.g. 11201"></div></div><p class="error" id="fromError"></p><button class="primary" data-input="fromZip" data-answer="fromZip" data-next="cust-to">Continue <span>→</span></button></div></section>
@@ -553,7 +553,7 @@ window.MOOVIT_DB=(function(){
   }
   function text(id,value){var el=document.getElementById(id);if(el)el.textContent=value}
   function formatDate(v){if(!v)return 'Date TBD';var d=new Date(v+'T12:00:00');return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}
-  function estimate(){return Number(state.base||380)+Number(state.extras||0)+85}
+  function estimate(){return Number(state.base||325)+Number(state.extras||0)+75}
   function computeMiles(){
     var fz=(state.fromZip||'').trim(),tz=(state.toZip||'').trim(),key=fz+'>'+tz;
     if(!fz||!tz||state.milesKey===key)return;
